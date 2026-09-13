@@ -792,22 +792,25 @@ body[dir="rtl"] .delivery-card::before {
 .delivery-card-actions {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .btn-action {
-  width: 32px;
-  height: 32px;
-  padding: 20px 40px;
+  min-height: 32px;
+  padding: 6px 12px;
   border: 1px solid var(--border-color);
   background: var(--bg-input);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-family: inherit;
   font-size: 0.8rem;
+  font-weight: 500;
   color: var(--text-secondary);
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .btn-action:hover {
@@ -1096,51 +1099,450 @@ body[dir="rtl"] .delivery-notes {
   }
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 600px) {
+/* ===== Responsive Media Queries ===== */
+
+/* Tablets & Medium Screens (<= 768px) */
+@media (max-width: 768px) {
   .container {
-    padding: 20px 14px 50px;
+    padding: 24px 16px 50px;
+  }
+
+  .header {
+    margin-bottom: 24px;
   }
 
   .header h1 {
-    font-size: 1.6rem;
+    font-size: 1.75rem;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  .form-group input,
+  .form-group textarea,
+  .stop-input,
+  .segment-cost-input,
+  .search-box input,
+  .modal-body input,
+  .modal-body textarea {
+    font-size: 16px;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 
+  .modal-overlay {
+    padding: 16px;
+  }
+
+  .modal-content {
+    max-height: 85vh;
+  }
+}
+
+/* Mobile Devices (<= 600px) */
+@media (max-width: 600px) {
+  .container {
+    padding: 18px 12px 40px;
+  }
+
+  .header-logo {
+    width: 84px;
+    height: 84px;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .header p {
+    font-size: 0.85rem;
+  }
+
+  /* Stats Row */
   .stats-row {
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
+    margin-bottom: 18px;
   }
 
   .stat-card {
-    padding: 14px 8px;
+    padding: 12px 6px;
   }
 
   .stat-number {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
   }
 
   .stat-label {
     font-size: 0.65rem;
+    letter-spacing: 0.3px;
   }
 
+  /* Form Card */
+  .form-card {
+    margin-bottom: 18px;
+    border-radius: var(--radius-md);
+  }
+
+  .form-header {
+    padding: 14px 16px;
+  }
+
+  .form-header h2 {
+    font-size: 1rem;
+  }
+
+  .form-body {
+    padding: 0 16px 18px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  /* Route Stops */
+  .stop-item {
+    gap: 8px;
+  }
+
+  .stop-marker {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  .btn-remove-stop {
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+  }
+
+  .route-segment {
+    margin: 4px 0 4px 14px;
+    min-height: 36px;
+  }
+
+  body[dir="rtl"] .route-segment {
+    margin: 4px 14px 4px 0;
+  }
+
+  .segment-cost {
+    margin-left: 18px;
+    padding: 4px 8px;
+  }
+
+  body[dir="rtl"] .segment-cost {
+    margin-left: 0;
+    margin-right: 18px;
+  }
+
+  .btn-add-stop {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+
+  /* Status Options Grid */
   .status-options {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
+  }
+
+  .status-radio {
+    display: block;
+  }
+
+  .status-badge {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 8px 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Filter Bar */
+  .filter-bar {
+    margin-bottom: 16px;
   }
 
   .filter-chips {
     overflow-x: auto;
     flex-wrap: nowrap;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .filter-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    font-size: 0.78rem;
+  }
+
+  /* Delivery Cards */
+  .deliveries-list {
+    gap: 12px;
+  }
+
+  .delivery-card {
+    padding: 16px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .delivery-card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .delivery-card-info h3 {
+    font-size: 1rem;
+    word-break: break-word;
+  }
+
+  .delivery-card-date {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .delivery-card-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: 6px;
+  }
+
+  .btn-action {
+    width: 100%;
+    padding: 7px 4px;
+    font-size: 0.75rem;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .delivery-route {
+    padding: 8px 10px;
+    gap: 4px;
+  }
+
+  .route-stop-tag {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .delivery-notes {
+    font-size: 0.78rem;
+    margin-bottom: 8px;
+  }
+
+  .delivery-card-footer {
+    gap: 6px;
+  }
+
+  .delivery-status-badge {
+    font-size: 0.68rem;
+    padding: 4px 10px;
+  }
+
+  .delivery-stops-count {
+    font-size: 0.72rem;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-content {
+    border-radius: var(--radius-lg);
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 14px 18px;
+  }
+
+  .modal-header h2 {
+    font-size: 1rem;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  /* Toast Notification */
+  .toast {
+    width: calc(100% - 24px);
+    max-width: 360px;
+    text-align: center;
+    white-space: normal;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+    bottom: 20px;
   }
 
   .lang-toggle {
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+
+  body[dir="rtl"] .lang-toggle {
+    right: auto;
+    left: 10px;
+  }
+}
+
+/* Extra Small Mobile (< 380px) */
+@media (max-width: 380px) {
+  .container {
+    padding: 14px 8px 30px;
+  }
+
+  .header-logo {
+    width: 72px;
+    height: 72px;
+  }
+
+  .header h1 {
+    font-size: 1.3rem;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .stat-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    text-align: left;
+  }
+
+  body[dir="rtl"] .stat-card {
+    text-align: right;
+  }
+
+  .stat-label {
+    margin-top: 0;
+  }
+
+  .status-options {
+    grid-template-columns: 1fr;
+  }
+
+  .route-segment {
+    margin: 4px 0 4px 10px;
+  }
+
+  body[dir="rtl"] .route-segment {
+    margin: 4px 10px 4px 0;
+  }
+
+  .segment-cost {
+    margin-left: 12px;
+    padding: 4px 6px;
+  }
+
+  body[dir="rtl"] .segment-cost {
+    margin-left: 0;
+    margin-right: 12px;
+  }
+
+  .delivery-card-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .bg-circle {
+    animation: none !important;
+  }
+
+  .header-logo {
+    animation: none !important;
+  }
+}
+
+/* Touch Friendly Targets */
+@media (pointer: coarse) {
+  .btn-submit,
+  .btn-add-stop,
+  .chip,
+  .btn-action,
+  .modal-close,
+  .btn-remove-stop {
+    min-height: 40px;
+  }
+
+  .btn-action {
+    padding: 8px 12px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .bg-decoration,
+  .form-card,
+  .filter-bar,
+  .btn-action,
+  .toast,
+  .modal-overlay,
+  .btn-submit,
+  .btn-add-stop,
+  .lang-toggle {
+    display: none !important;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .delivery-card {
+    background: white;
+    border: 1px solid #ccc;
+    color: black;
+    break-inside: avoid;
+    box-shadow: none;
+    margin-bottom: 12px;
+  }
+
+  .delivery-card-info h3,
+  .route-stop-tag {
+    color: black !important;
   }
 }
 
