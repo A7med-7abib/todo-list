@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" type="image/x-icon" href="./viewtec-logo-BG9fGoOa.png">
+    <link rel="icon" type="image/x-icon" href="./viewtec-logo-BG9fGoOa.png" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
@@ -39,7 +39,15 @@
             id="logoImg"
           />
         </div>
-        <h1 id="appTitle">view tec company</h1>
+        <h1 id="appTitle">VIEW TEC COMPANY</h1>
+        <div class="header-actions">
+          <button class="btn-utility" onclick="exportToExcel()" title="Export deliveries to Excel/CSV">
+            <i class="bi bi-file-earmark-excel"></i> Export Excel
+          </button>
+          <button class="btn-utility" onclick="printReport()" title="Print deliveries summary">
+            <i class="bi bi-printer"></i> Print Report
+          </button>
+        </div>
       </header>
 
       <!-- Add New Entry Form -->
@@ -162,11 +170,7 @@
                 </button>
               </div>
             </div>
-            <button
-              class="btn-add-stop"
-              id="btnAddStop"
-              onclick="addStop()"
-            >
+            <button class="btn-add-stop" id="btnAddStop" onclick="addStop()">
               + Add Stop
             </button>
           </div>
@@ -200,11 +204,7 @@
             </div>
           </div>
 
-          <button
-            class="btn-submit"
-            id="btnSubmit"
-            onclick="saveDelivery()"
-          >
+          <button class="btn-submit" id="btnSubmit" onclick="saveDelivery()">
             Save Delivery
           </button>
         </div>
@@ -227,35 +227,63 @@
           <input
             type="text"
             id="searchInput"
-            placeholder="Search doctor or destination..."
+            placeholder="Search doctor, engineer, or destination..."
             oninput="filterDeliveries()"
           />
         </div>
         <div class="filter-chips">
-          <button
-            class="chip active"
-            onclick="filterByStatus('all', this)"
-          >
+          <button class="chip active" onclick="filterByStatus('all', this)">
             All
           </button>
-          <button
-            class="chip"
-            onclick="filterByStatus('pending', this)"
-          >
+          <button class="chip" onclick="filterByStatus('pending', this)">
             Pending
           </button>
-          <button
-            class="chip"
-            onclick="filterByStatus('in-progress', this)"
-          >
+          <button class="chip" onclick="filterByStatus('in-progress', this)">
             In Progress
           </button>
-          <button
-            class="chip"
-            onclick="filterByStatus('completed', this)"
-          >
+          <button class="chip" onclick="filterByStatus('completed', this)">
             Completed
           </button>
+        </div>
+
+        <div class="filter-controls-row">
+          <div class="filter-control-group">
+            <label for="engineerFilter"
+              ><i class="bi bi-person-gear"></i> Engineer:</label
+            >
+            <select
+              id="engineerFilter"
+              class="filter-select"
+              onchange="filterByEngineer(this.value)"
+            >
+              <option value="all">All Engineers</option>
+            </select>
+          </div>
+          <div class="filter-control-group">
+            <label for="monthFilter"
+              ><i class="bi bi-calendar-month"></i> Month:</label
+            >
+            <select
+              id="monthFilter"
+              class="filter-select"
+              onchange="filterByMonth(this.value)"
+            >
+              <option value="all">All Months</option>
+            </select>
+          </div>
+          <div class="filter-control-group">
+            <label for="dateSort"
+              ><i class="bi bi-calendar2-week"></i> Sort Date:</label
+            >
+            <select
+              id="dateSort"
+              class="filter-select"
+              onchange="changeDateSort(this.value)"
+            >
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+          </div>
         </div>
       </div>
 

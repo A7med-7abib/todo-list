@@ -3,6 +3,9 @@ let deliveries = JSON.parse(
   localStorage.getItem("routeTracker_deliveries") || "[]",
 );
 let currentFilter = "all";
+let currentMonthFilter = "all";
+let currentEngineerFilter = "all";
+let currentDateSort = "desc";
 let editingId = null;
 
 function getDayName(dateStr) {
@@ -19,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const today = new Date().toISOString().split("T")[0];
   const dateInput = document.getElementById("deliveryDate");
   const dayInput = document.getElementById("deliveryDays");
-  
+
   if (dateInput) {
     dateInput.value = today;
     dateInput.addEventListener("change", (e) => {
@@ -32,6 +35,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     dayInput.value = getDayName(today);
   }
 
+  updateEngineerFilterOptions();
+  updateMonthFilterOptions();
   renderDeliveries(); // Render local first
   updateStats();
 
@@ -40,6 +45,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (dbData && dbData.length > 0) {
     deliveries = dbData;
     saveToStorage(); // Sync local cache
+    updateEngineerFilterOptions();
+    updateMonthFilterOptions();
     renderDeliveries();
     updateStats();
   } else if (dbData && dbData.length === 0 && deliveries.length > 0) {
@@ -114,7 +121,9 @@ function removeStop(btn) {
 }
 
 function calculateTotalCost() {
-  const costInputs = document.querySelectorAll("#stopsContainer .segment-cost-input");
+  const costInputs = document.querySelectorAll(
+    "#stopsContainer .segment-cost-input",
+  );
   let total = 0;
   costInputs.forEach((input) => {
     total += parseFloat(input.value) || 0;
@@ -167,7 +176,9 @@ async function saveDelivery() {
 
   // Gather stops
   const stopItems = document.querySelectorAll("#stopsContainer .stop-item");
-  const costInputs = document.querySelectorAll("#stopsContainer .segment-cost-input");
+  const costInputs = document.querySelectorAll(
+    "#stopsContainer .segment-cost-input",
+  );
   const stops = [];
   stopItems.forEach((item, index) => {
     const nameInput = item.querySelector(".stop-name");
@@ -219,6 +230,8 @@ async function saveDelivery() {
   if (inserted) {
     deliveries.unshift(inserted);
     saveToStorage();
+    updateEngineerFilterOptions();
+    updateMonthFilterOptions();
     renderDeliveries();
     updateStats();
     resetForm();
@@ -232,6 +245,8 @@ async function saveDelivery() {
     };
     deliveries.unshift(localDelivery);
     saveToStorage();
+    updateEngineerFilterOptions();
+    updateMonthFilterOptions();
     renderDeliveries();
     updateStats();
     resetForm();
@@ -249,7 +264,8 @@ function resetForm() {
   if (dayInput) dayInput.value = getDayName(today);
   document.getElementById("deliveryCost").value = "0.00";
   document.getElementById("notes").value = "";
-  document.querySelector('input[name="status"][value="pending"]').checked = true;
+  document.querySelector('input[name="status"][value="pending"]').checked =
+    true;
 
   // Reset stops to 2
   const container = document.getElementById("stopsContainer");
@@ -285,11 +301,27 @@ function renderDeliveries() {
   const emptyState = document.getElementById("emptyState");
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
 
-  let filtered = deliveries;
+  let filtered = [...deliveries];
 
   // Filter by status
   if (currentFilter !== "all") {
     filtered = filtered.filter((d) => d.status === currentFilter);
+  }
+
+  // Filter by month
+  if (currentMonthFilter !== "all") {
+    filtered = filtered.filter(
+      (d) => d.date && d.date.startsWith(currentMonthFilter),
+    );
+  }
+
+  // Filter by engineer
+  if (currentEngineerFilter !== "all") {
+    filtered = filtered.filter(
+      (d) =>
+        d.engineer &&
+        d.engineer.trim().toLowerCase() === currentEngineerFilter.toLowerCase(),
+    );
   }
 
   // Filter by search
@@ -306,6 +338,16 @@ function renderDeliveries() {
         (d.notes && d.notes.toLowerCase().includes(searchTerm)),
     );
   }
+
+  // Arrange / Sort by date
+  filtered.sort((a, b) => {
+    const timeA = a.date ? new Date(a.date).getTime() : 0;
+    const timeB = b.date ? new Date(b.date).getTime() : 0;
+    if (currentDateSort === "asc") {
+      return timeA - timeB;
+    }
+    return timeB - timeA;
+  });
 
   if (filtered.length === 0) {
     list.innerHTML = "";
@@ -373,7 +415,7 @@ function renderDeliveries() {
     .join("");
 }
 
-// ===== Filter =====
+// ===== Filter & Sort Functions =====
 function filterByStatus(status, chipEl) {
   currentFilter = status;
 
@@ -383,6 +425,140 @@ function filterByStatus(status, chipEl) {
   chipEl.classList.add("active");
 
   renderDeliveries();
+}
+
+function filterByEngineer(engineer) {
+  currentEngineerFilter = engineer;
+  renderDeliveries();
+}
+
+function filterByMonth(month) {
+  currentMonthFilter = month;
+  renderDeliveries();
+}
+
+function changeDateSort(sortOrder) {
+  currentDateSort = sortOrder;
+  renderDeliveries();
+}
+
+function updateMonthFilterOptions() {
+  const select = document.getElementById("monthFilter");
+  if (!select) return;
+  const currentVal = select.value || "all";
+
+  const monthsSet = new Set();
+  deliveries.forEach((d) => {
+    if (d.date && typeof d.date === "string" && d.date.length >= 7) {
+      monthsSet.add(d.date.substring(0, 7));
+    }
+  });
+
+  const sortedMonths = Array.from(monthsSet).sort().reverse();
+
+  let options = `<option value="all">All Months</option>`;
+  sortedMonths.forEach((m) => {
+    const parts = m.split("-");
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]);
+    const dateObj = new Date(year, month - 1, 1);
+    const monthName = dateObj.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+    options += `<option value="${m}">${monthName}</option>`;
+  });
+
+  select.innerHTML = options;
+  if (sortedMonths.includes(currentVal)) {
+    select.value = currentVal;
+    currentMonthFilter = currentVal;
+  } else {
+    select.value = "all";
+    currentMonthFilter = "all";
+  }
+}
+
+function updateEngineerFilterOptions() {
+  const select = document.getElementById("engineerFilter");
+  if (!select) return;
+  const currentVal = select.value || "all";
+  const uniqueEngineers = Array.from(
+    new Set(
+      deliveries
+        .map((d) => (d.engineer || "").trim())
+        .filter((eng) => eng.length > 0),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
+
+  let options = `<option value="all">All Engineers</option>`;
+  uniqueEngineers.forEach((eng) => {
+    options += `<option value="${escapeHtml(eng)}">${escapeHtml(eng)}</option>`;
+  });
+  select.innerHTML = options;
+
+  if (uniqueEngineers.includes(currentVal)) {
+    select.value = currentVal;
+    currentEngineerFilter = currentVal;
+  } else {
+    select.value = "all";
+    currentEngineerFilter = "all";
+  }
+}
+
+// ===== Export to Excel / CSV =====
+function exportToExcel() {
+  if (!deliveries || deliveries.length === 0) {
+    showToast("No deliveries to export");
+    return;
+  }
+
+  const headers = [
+    "Date",
+    "Day",
+    "Doctor Name",
+    "Engineer Name",
+    "Route Stops",
+    "Total Cost",
+    "Status",
+    "Notes",
+  ];
+
+  const rows = deliveries.map((d) => {
+    const stopsStr = (d.stops || [])
+      .map((s) => (typeof s === "string" ? s : s.name))
+      .join(" -> ");
+
+    return [
+      `"${d.date || ""}"`,
+      `"${d.days || ""}"`,
+      `"${(d.doctor || "").replace(/"/g, '""')}"`,
+      `"${(d.engineer || "").replace(/"/g, '""')}"`,
+      `"${stopsStr.replace(/"/g, '""')}"`,
+      `"${d.cost || 0}"`,
+      `"${d.status || ""}"`,
+      `"${(d.notes || "").replace(/"/g, '""')}"`,
+    ];
+  });
+
+  const csvContent =
+    "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const today = new Date().toISOString().split("T")[0];
+  link.setAttribute("href", url);
+  link.setAttribute("download", `VIEW_TEC_Deliveries_${today}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast("Excel export downloaded!");
+}
+
+// ===== Print Report =====
+function printReport() {
+  window.print();
 }
 
 function filterDeliveries() {
@@ -433,6 +609,8 @@ async function deleteDelivery(id) {
       setTimeout(() => {
         deliveries = deliveries.filter((d) => d.id !== id);
         saveToStorage();
+        updateEngineerFilterOptions();
+        updateMonthFilterOptions();
         renderDeliveries();
         updateStats();
         showToast("Delivery deleted");
@@ -590,6 +768,8 @@ async function saveEdit() {
 
   Object.assign(delivery, updates);
   saveToStorage();
+  updateEngineerFilterOptions();
+  updateMonthFilterOptions();
   renderDeliveries();
   updateStats();
   closeEditModal();
